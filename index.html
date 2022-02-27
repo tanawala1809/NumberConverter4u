@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Number Convertor for Bases</title>
+        <link rel="stylesheet" href="styles.css"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+         <!--Font Awesome CDN link for icons -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+        <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/> -->
+    </head>
+    <body>
+        <div class="wrapper">
+            <header>Number Convertor</header>
+            <form action="#">
+                <div class="number">
+                    <p>Enter Number</p>
+                    <input type="text" placeholder="Number here"/>
+                    <div class="drop-list">
+                        <div class="from">  
+                            <p>From</p>
+                            <div class="select-box">
+                                <select id="from"></select>
+                            </div>
+                        </div>
+                        <div class="icon"><i class="fas fa-exchange-alt"></i></div>
+                        <div class="to">  
+                            <p>To</p>
+                            <div class="select-box">
+                                <select id="to2"></select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="convert-number" class="convert-number"></div>
+                <button>Convert</button>
+            </form>
+        </div>
+        <script>
+            "use strict"
+            let bases = {
+                "Decimal": "Decimal",
+                "Binary": "Binary",
+                "Octal": "Octal",
+                "Hexa-Decimal": "Hexa-Decimal",
+            };
+
+            const dropDownList = document.querySelectorAll(".drop-list select");
+            const getConvertButton = document.querySelector("form button");
+            // const fromBaseX = document.querySelector(".from select option.selected");
+            // const toBaseY = document.querySelector(".to select option.selected");
+
+            const baseX = document.getElementById("from");
+            const baseY = document.getElementById("to2");            
+            const result= document.getElementById("convert-number");
+            const swapIcon = document.querySelector(".drop-list .icon");
+            console.log("swapIcon: ", swapIcon);
+
+            console.log("Display dropDownList :: ");
+            console.log(dropDownList.length);
+            console.log(dropDownList[0]);
+            console.log(dropDownList[1]);
+            let baseB;
+            for (let i=0; i < dropDownList.length; i++) {
+                for (baseB in bases) {
+                    console.log("current baseB Value ::", baseB);
+
+                    // Selecting Decimal by default as FROM number, and Binary as TO number
+                    let selected;
+                    if (i == 0) {
+                        selected = baseB == "Decimal" ? "selected" : "";
+                    } else if (i == 1) {
+                        selected = baseB == "Binary" ? "selected" : "";
+                    }
+
+                    let optionTag = `<option value="${baseB}" ${selected}>${baseB}</option>`;
+                    console.log("currentOptionTag ::", optionTag);
+                    dropDownList[i].insertAdjacentHTML("beforeend", optionTag);
+                }
+            }
+
+            getConvertButton.addEventListener("click", (event) => {
+                console.log("under addEventListener");
+                event.preventDefault();     // preventing from being submitted
+                convertBaseXToBaseY();
+            });
+
+            swapIcon.addEventListener("click", () => {
+                console.log("Swap Icon Clicked: ");
+                let temp = baseX.value;
+                baseX.value = baseY.value;
+                baseY.value = temp;
+
+                let inputNumber = document.querySelector(".number input");
+                console.log('inputNumber:', inputNumber);
+                let inputValue = inputNumber.value;
+                console.log('inputValue:', inputValue);
+                result.innerHTML = "";
+
+                if (inputValue) {
+                    console.log(inputValue);
+                    console.log("going to function convertBaseXToBaseY()");
+                    convertBaseXToBaseY();
+                }
+            });
+            
+            function convertBaseXToBaseY() {
+                console.log("under Function convertBaseXToBaseY");
+                console.log("baseX:: ", baseX);
+                console.log("baseY:: ", baseY);
+
+                const inputNumber = document.querySelector(".number input");
+                console.log('inputNumber:', inputNumber);
+                let inputValue = inputNumber.value;
+                console.log('inputValue:', inputValue);
+
+                if (inputValue == "" || inputValue == "0") {
+                    inputNumber.value = 0;
+                    inputValue = 0;
+                }
+
+                let baseXType = baseX.options[baseX.selectedIndex].text;
+                console.log('baseXType:: ', baseXType);
+
+                let baseYType = baseY.options[baseY.selectedIndex].text;
+                console.log('baseYType:: ', baseYType);
+                console.log(typeof(baseXType));
+                console.log(typeof(baseYType));
+
+
+                var baseXValue = inputValue.toString().trim();
+                var baseYValue = "";
+                var flag = 0;
+                
+                var currentCheck = validateInput(baseXType, baseXValue, flag);
+                console.log("currentCheck Value Now::", currentCheck);
+                if (currentCheck === true) {
+                    console.log("Valid Input");
+                    if (baseXType === baseYType) {
+                        console.log("Both bases are same");
+                        result.style.color = "#FF1700";
+                        result.innerHTML = "Bases Same, Can't Proceed Ahead";
+                    } else {
+                        var currentCheckAnswer = computeConversion(baseXType, baseXValue, baseYType);
+                    }
+                    inputNumber.value = "";
+                    inputValue = "";
+                } else {
+                    console.log("Invalid Input");
+                    result.style.color = "#FF1700";
+                    result.innerHTML = "Invalid Input";
+                    inputNumber.value = "";
+                    inputValue = "";
+                }
+            }
+
+            function validateInput(baseXType, baseXValue, flag) {
+                console.log("Under validateInput() function on index.html");
+                console.log("baseXType:: ", baseXType);
+                console.log("baseXValue:: ", baseXValue);
+                console.log("Flag:: ", flag);
+                console.log("baseXValue length:: ", baseXValue.length);
+
+                var ans = true;
+
+                if (baseXType === "Decimal") {
+                    console.log("baseXValue.length", baseXValue.length);
+                    if (isNaN(baseXValue)) {
+                        flag = 1;
+                    }
+                } else if (baseXType === "Binary") {
+                    let countDot = 0;
+                    for (let k =0; k < baseXValue.length; k++) {
+                        if (baseXValue.charAt(k) == 0 || baseXValue.charAt(k) == 1 || baseXValue.charAt(k) == '.') {
+                            if (baseXValue.charAt(k) == '.') {
+                                countDot++;
+                                if (countDot > 1) {
+                                    flag = 1;
+                                }
+                            }
+                            continue;
+                        } else {
+                            flag = 1;
+                            break;
+                        }
+                    }
+                } else if (baseXType === "Octal") {
+                    let countDot = 0;
+                    for (let k =0; k  < baseXValue.length; k++) {
+                        if (baseXValue.charAt(k) == '.') {
+                            countDot++;
+                            if (countDot > 1) {
+                                flag = 1;
+                                break;
+                            }
+                        } else {
+                            switch(baseXValue.charAt(k)) {
+                                case '0':
+                                case '1':
+                                case '2':
+                                case '3':
+                                case '4':
+                                case '5':
+                                case '6':
+                                case '7':
+                                    continue;
+                                    break;
+                                default:
+                                    flag = 1;
+                                    break;
+                            }
+                        }
+                    }
+                } else if (baseXType === "Hexa-Decimal") {
+                    let countDot = 0;
+                    for (let k=0; k < baseXValue.length; k++) {
+                        console.log(baseXValue.charAt(k));
+                        if (baseXValue.charAt(k) == '.') {
+                            countDot++;
+                            if (countDot > 1) {
+                                flag = 1;
+                                break;
+                            }
+                        } else {
+                            switch(baseXValue.charAt(k)) {
+                                case '0':
+                                case '1':
+                                case '2':
+                                case '3':
+                                case '4':
+                                case '5':
+                                case '6':
+                                case '7':
+                                case '8':
+                                case '9':
+                                case 'A':
+                                case 'B':
+                                case 'C':
+                                case 'D':
+                                case 'E':
+                                case 'F':
+                                case 'a':
+                                case 'b':
+                                case 'c':
+                                case 'd':
+                                case 'e':
+                                case 'f':
+                                    continue;
+                                    break;
+                                default:
+                                    flag = 1;
+                                    break;
+                            }
+                        }
+                    }
+                }
+                if (flag == 1) {
+                    ans = false;
+                }
+                console.log(`Returning ${ans} from function`);
+                return ans;
+            }
+
+            function computeConversion(baseXType, baseXValue, baseYType) {
+                console.log("Under computeConversion Page on index.html");
+                console.log("baseXType Value Received:: ", baseXType);
+                console.log("baseXValue Received::", baseXValue);
+                console.log("baseYType Value Received::", baseYType);
+                var ans;
+
+                if (baseXType === "Binary") {
+                    ans = binaryToConversion(baseXValue, baseYType);
+                    console.log("Answer Received::", ans);
+                } else if (baseXType === "Octal") {
+                    ans = octalToConversion(baseXValue, baseYType);
+                } else if (baseXType === "Hexa-Decimal") {
+                    ans = hexaDecimalToConversion(baseXValue, baseYType);
+                } else if (baseXType === "Decimal") {
+                    ans = decimalToConversion(baseXValue, baseYType);
+                }
+
+                console.log("Answer Received::", ans);
+
+                if (ans === undefined || ans === null || ans === "") {
+                    console.log("under if part");
+                    ans = 0;
+                    result.style.color = "#0114A4"; //051260        //5902EC
+                    result.innerHTML = `${baseXValue} in ${baseXType} is ${ans} in ${baseYType}`;
+                } else {
+                    result.style.color = "#0114A4";
+                    result.innerHTML = `${baseXValue} in ${baseXType} is ${ans} in ${baseYType}`;
+                }
+            }
+
+            function createBinaryToOctalMapping(um) {
+                um.set("000", '0');
+                um.set("001", '1');
+                um.set("010", '2');
+                um.set("011", '3');
+                um.set("100", '4');
+                um.set("101", '5');
+                um.set("110", '6');
+                um.set("111", '7');
+            }
+
+            function createOctalToBinaryMapping(um) {
+                um.set("0", '000');
+                um.set("1", '001');
+                um.set("2", '010');
+                um.set("3", '011');
+                um.set("4", '100');
+                um.set("5", '101');
+                um.set("6", '110');
+                um.set("7", '111');
+            }
+
+            function createBinaryToHexaDecimalMapping(um) {
+                um.set("0000", '0');
+                um.set("0001", '1');
+                um.set("0010", '2');
+                um.set("0011", '3');
+                um.set("0100", '4');
+                um.set("0101", '5');
+                um.set("0110", '6');
+                um.set("0111", '7');
+                um.set("1000", '8');
+                um.set("1001", '9');
+
+                um.set("1010", 'a');
+                um.set("1010", 'A');
+               
+                um.set("1011", 'b');
+                um.set("1011", 'B');
+                
+                um.set("1100", 'c');
+                um.set("1100", 'C');
+                
+                um.set("1101", 'd');
+                um.set("1101", 'D');
+
+                um.set("1110", 'e');
+                um.set("1110", 'E');
+
+                um.set("1111", 'f');
+                um.set("1111", 'F');
+            }
+
+            function decimalToConversion(value, type) {
+                console.log("Under decimalToConversion() on index.html Page");
+                console.log("Value :: ", value);
+                console.log("Type :: ", type);
+                console.log("Length:: ", value.length);
+
+                if (type === "Binary") {
+                    let binaryString = decimalToBinary(value);
+                    console.log("binaryString received:", binaryString);
+                    return binaryString;
+                } else if (type === "Octal") {
+                    let octalString = decimalToOctal(value);
+                    console.log("octalString received:", octalString);
+                    return octalString;
+                } else if(type === "Hexa-Decimal") {
+                    let hexaDecimalString = decimalToHexaDecimal(value);
+                    console.log("hexaDecimalString:", hexaDecimalString);
+                    return hexaDecimalString;
+                }
+            }
+
+            function binaryToConversion(value, type) {
+                console.log("Under binaryToConversion() on index.html Page");
+                console.log("Value :: ", value);
+                console.log("Type :: ", type);
+                console.log("Length:: ", value.length);
+
+                let decimalEquivalent = "";
+                let octalEquivalent = "";
+                let hexaDecimalEquivalent = ""; 
+
+                if (type === "Decimal") {
+                    // Binary To Decimal Conversion
+                    let newNumber = value.split('.');
+                    console.log("newNumber: ", newNumber);
+                    let integerPart = newNumber[0];
+                    let fractionPart = newNumber[1];
+
+                    console.log('fractionPart: ', fractionPart);
+
+                    let l = value.length;
+                    let t = value.indexOf('.');
+                    let valueToBeUsed = "";
+
+                    if (t != -1) {
+                        console.log("Input containes decimal point");
+                        const myArray = value.split(".");
+                        valueToBeUsed = myArray[0];
+                        decimalEquivalent = parseInt(valueToBeUsed, 2);
+                        console.log("current decimalEquivaluent: ", decimalEquivalent);
+
+                        console.log("fractionPart is not undefined");
+                        let decimalNumberFractionPart = new Array(fractionPart.length);
+                        let m = fractionPart.length;
+                        let tempString = 0;
+                        while (m >= 1) {
+                            let rem = parseInt(Math.floor(fractionPart % 2));
+                            console.log("rem: ", rem);
+                            tempString = tempString + rem * Math.pow(2,(-1*m));
+                            console.log("tempString: ", tempString);
+                            m--;
+                            fractionPart = fractionPart / 10;
+                            console.log("fractionPart", fractionPart);
+                        }
+                        decimalEquivalent+= '.';
+                        let ts = tempString.toString();
+                        let finalTempString = ts.split(".");
+
+                        decimalEquivalent += finalTempString[1] ;
+
+                        return decimalEquivalent;
+                    } else {
+                        decimalEquivalent = parseInt(value, 2);
+                        console.log('decimalEquivalent:', decimalEquivalent);
+                        return decimalEquivalent;
+                    }
+                } else if (type === "Octal") {
+                    // Binary to Octal Conversion
+                    octalEquivalent = convertBinaryToOctal(value);
+                    console.log("Value Received (Octal String) ::", octalEquivalent);
+                    return octalEquivalent;
+
+                } else if (type === "Hexa-Decimal") {
+                    // Binary to Hexa-Decimal Conversion
+                    hexaDecimalEquivalent = convertBinaryToHexaDecimal(value);
+                    return hexaDecimalEquivalent;
+                }
+            }
+
+            function octalToConversion(value, type) {
+                console.log("Under octalToConversion() on index.html Page");
+                console.log("Value:: ", value);
+                console.log("Type:: ", type);
+                console.log("Length:: ", value.length);
+
+                if (type === "Binary") {
+                    let binaryString = octalToBinaryConversion(value);
+                    return binaryString;
+                } else if (type === "Hexa-Decimal") {
+                    let binaryString = octalToBinaryConversion(value);
+                    let hexaDecimalString = convertBinaryToHexaDecimal(binaryString);
+                    return hexaDecimalString;
+                } else if (type === "Decimal") {
+                    // Octal To Decimal Conversion
+                    let newNumber = value.split('.');
+                    console.log("newNumber: ", newNumber);
+                    let integerPart = newNumber[0];
+                    let fractionPart = newNumber[1];
+
+                    console.log("integerPart: ", integerPart);
+                    console.log("fractionPart: ", fractionPart);
+                    let decimalEquivalent = "";
+                    let l = value.length;
+                    let t = value.indexOf('.');
+                    let valueToBeUsed = "";
+
+                    if (t != -1) {
+                        console.log("Input containes decimal point");
+                        const myArray = value.split(".");
+                        valueToBeUsed = myArray[0];
+                        decimalEquivalent = parseInt(valueToBeUsed, 8);
+                        console.log("current decimalEquivaluent: ", decimalEquivalent);
+
+                        console.log("fractionPart is not undefined");
+                        let octalNumberFractionPart = new Array(fractionPart.length);
+                        let m = fractionPart.length;
+                        let tempString = 0;
+                        while (m >= 1) {
+                            let rem = parseInt(Math.floor(fractionPart % 10));
+                            console.log("rem: ", rem);
+                            tempString = tempString + rem * Math.pow(8,(-1*m));
+                            console.log("tempString: ", tempString);
+                            m--;
+                            fractionPart = fractionPart / 10;
+                            console.log("fractionPart", fractionPart);
+                        }
+                        decimalEquivalent+= '.';
+                        let ts = tempString.toString();
+                        let finalTempString = ts.split(".");
+
+                        decimalEquivalent += finalTempString[1] ;
+                        console.log("DecimalEquivalent: ", decimalEquivalent);
+                        return decimalEquivalent;
+                    } else {
+                        decimalEquivalent = parseInt(value, 8);
+                        console.log('decimalEquivalent:', decimalEquivalent);
+                        return decimalEquivalent;
+                    }
+                }
+            }
+
+            function hexaDecimalToConversion(value, type) {
+                console.log("Under hexaDecimalToConversion() on index.html Page");
+                console.log("Value:: ", value);
+                console.log("Type:: ", type);
+                console.log("Length:: ", value.length);
+
+                if (type === "Binary") {
+                    let binaryString = convertHexaDecimalToBinary(value);
+                    return binaryString;
+                } else if (type === "Octal") {
+                    let binaryString = convertHexaDecimalToBinary(value);
+                    let binaryToOctalString = convertBinaryToOctal(binaryString);
+                    return binaryToOctalString;
+                } else if (type === "Decimal") {
+                    // Hexa-Decimal To Decimal Conversion
+                    let newNumber = value.split('.');
+                    console.log("newNumber: ", newNumber);
+                    let integerPart = newNumber[0];
+                    let fractionPart = newNumber[1];
+
+                    console.log("integerPart: ", integerPart);
+                    console.log("fractionPart: ", fractionPart);
+                    // console.log("fractionPart Length: ", fractionPart.length);
+                    let decimalEquivalent = "";
+                    let l = value.length;
+                    let t = value.indexOf('.');
+                    let valueToBeUsed = "";
+                    let rem;
+                    if (t != -1) {
+                        console.log("Input containes decimal point");
+                        const myArray = value.split(".");
+                        valueToBeUsed = myArray[0];
+                        decimalEquivalent = parseInt(valueToBeUsed, 16);
+                        console.log("current decimalEquivaluent: ", decimalEquivalent);
+
+                        console.log("fractionPart is not undefined");
+                        let hexaDecimalNumberFractionPart = new Array(fractionPart.length);
+                        let m = fractionPart.length;
+                        // console.log("m:", m);
+                        let tempString = 0;
+                        while (m >= 1) {
+                            let c = fractionPart.charAt(m-1);
+                            console.log("m:", m);
+                            console.log("Value of c: ", c);
+                            if (c >= 0 && c <= 9) {
+                                rem = c;
+                            } else if (c == 'A' || c == 'a') {
+                                rem = 10;
+                            } else if (c == 'B' || c == 'b') {
+                                rem = 11;
+                            } else if (c == 'c' || c == 'C') {
+                                rem = 12;
+                            } else if (c == 'd' || c == 'D') {
+                                rem = 13;
+                            } else if (c == 'e' || c == 'E') {
+                                rem = 14;
+                            } else if (c == 'f' || c == 'F') {
+                                rem = 15;
+                            }
+                            console.log("rem: ", rem);
+                            tempString = tempString + rem * Math.pow(16,(-1*m));
+                            console.log("tempString: ", tempString);
+                            m--;
+                        }
+
+                        decimalEquivalent+= '.';
+                        let ts = tempString.toString();
+                        console.log("ts: ", ts);
+                        let finalTempString = ts.split(".");
+                        console.log("finalTempString: ", finalTempString);
+                        decimalEquivalent += finalTempString[1] ;
+                        console.log("DecimalEquivalent: ", decimalEquivalent);
+
+                        return decimalEquivalent;
+                    } else {
+                        decimalEquivalent = parseInt(value, 16);
+                        console.log('decimalEquivalent:', decimalEquivalent);
+                        return decimalEquivalent;
+                    }
+                }
+            }
+
+            function decimalToBinary(value) {
+                let newNumber = value.split('.');
+                console.log("newNumber: ", newNumber);
+                let integerPart = newNumber[0];
+                let fractionPart = newNumber[1];
+
+                console.log("integerPart: ", integerPart);
+                console.log("fractionalPart: ", fractionPart);
+
+                let binaryNumIntegerPart = new Array(50);
+                let binaryString = '';
+                let i = 0;
+                let fractionPartFloat;
+                while (integerPart > 0) {
+                    binaryNumIntegerPart[i] = integerPart % 2;
+                    integerPart = Math.floor(integerPart/2);
+                    i++;
+                }
+
+                for (let j = i-1; j >= 0; j--) {
+                    binaryString += binaryNumIntegerPart[j];
+                }
+
+                if (fractionPart != undefined) {
+                    console.log("fractionPart is not undefined");
+                    fractionPart = '0.' + fractionPart;
+                    console.log('Upgraded fractionPart: ', fractionPart);
+                    fractionPartFloat = parseFloat(fractionPart);
+                    console.log("fractionPartFloat Value: ", fractionPartFloat);
+                    
+                    let binaryNumberFractionPart = new Array(10);     // Upto 10 Decimal Places
+                    let i = 0;
+                    while (i < 10) {
+                        let temp = fractionPartFloat * 2;
+                        console.log("temp: ", temp);
+
+                        let mainPart = parseInt(Math.floor(temp));
+                        console.log("mainPart: ", mainPart);
+
+                        let remainingPart = temp - mainPart;
+                        console.log("remainingPart: ", remainingPart);
+
+                        binaryNumberFractionPart[i] = mainPart;
+
+                        console.log(binaryNumberFractionPart[i]);
+                        fractionPartFloat = remainingPart;
+                        i++;
+                    }
+                    binaryString += '.';
+
+                    for(let j=0; j < 10; j++) {
+                        binaryString = binaryString + binaryNumberFractionPart[j];
+                    }
+                }
+
+                return binaryString;
+            }
+
+            function decimalToOctal(value) {
+                let newNumber = value.split('.');
+                console.log("newNumber: ", newNumber);
+                let integerPart = newNumber[0];
+                let fractionPart = newNumber[1];
+
+                console.log("integerPart: ", integerPart);
+                console.log("fractionalPart: ", fractionPart);
+
+                let octalNumIntegerPart = new Array(100);
+                let octalString = '';
+                let i=0;
+                let fractionPartFloat;
+                while (integerPart != 0){
+                    octalNumIntegerPart[i] = integerPart % 8;
+                    integerPart = Math.floor(integerPart/8);
+                    i++;
+                }
+                for(let j=i-1; j>=0;j--) {
+                    octalString = octalString + octalNumIntegerPart[j];
+                }
+
+                if (fractionPart != undefined) {
+                    console.log("fractionPart is not undefined");
+                    fractionPart = '0.' + fractionPart;
+                    console.log('Upgraded fractionPart: ', fractionPart);
+                    fractionPartFloat = parseFloat(fractionPart);
+                    console.log("fractionPartFloat Value: ", fractionPartFloat);
+                    
+                    let octalNumberFractionPart = new Array(10);     // Upto 10 Decimal Places
+                    let i = 0;
+                    while (i < 10) {
+                        let temp = fractionPartFloat * 8;
+                        console.log("temp: ", temp);
+
+                        let mainPart = parseInt(Math.floor(temp));
+                        console.log("mainPart: ", mainPart);
+
+                        let remainingPart = temp - mainPart;
+                        console.log("remainingPart: ", remainingPart);
+
+                        octalNumberFractionPart[i] = mainPart;
+
+                        console.log(octalNumberFractionPart[i]);
+                        fractionPartFloat = remainingPart;
+                        i++;
+                    }
+                    octalString += '.';
+
+                    for(let j=0; j < 10; j++) {
+                        octalString = octalString + octalNumberFractionPart[j];
+                    }
+                }
+
+                return octalString;
+            }
+
+            function decimalToHexaDecimal(value) {
+                let newNumber = value.split('.');
+                console.log("newNumber: ", newNumber);
+                let integerPart = newNumber[0];
+                let fractionPart = newNumber[1];
+                let fractionPartFloat;
+                let hexaDecimalString = '';
+                var hexaDeciNum = Array.from({length: 100},
+                    (_, i) => 0);
+                
+                var i=0;
+                while (value != 0) {
+                    var temp =0;
+                    temp = value % 16;
+                    if (temp < 10) {
+                        hexaDeciNum[i] = String.fromCharCode(temp + 48);
+                        i++;
+                    } else {
+                        hexaDeciNum[i] = String.fromCharCode(temp + 55);
+                        i++;
+                    }
+                    value = parseInt(value/16);
+                }
+
+                for(let j = i-1; j >= 0; j--) {
+                    hexaDecimalString += hexaDeciNum[j];
+                }
+
+                if (fractionPart != undefined) {
+                    console.log("fractionPart is not undefined");
+                    fractionPart = '0.' + fractionPart;
+                    console.log('Upgraded fractionPart: ', fractionPart);
+                    fractionPartFloat = parseFloat(fractionPart);
+                    console.log("fractionPartFloat Value: ", fractionPartFloat);
+                
+                    let hexaNumberFractionPart = new Array(10);     // Upto 10 Decimal Places
+                    let i = 0;
+                    while (i < 10) {
+                        let temp = fractionPartFloat * 16;
+                        console.log("temp: ", temp);
+
+                        let mainPart = parseInt(Math.floor(temp));
+                        console.log("mainPart: ", mainPart);
+
+                        if (mainPart >= 0 && mainPart <= 9) {
+                            console.log("Under if Part");
+                            console.log("mainPart under if: ", mainPart);
+                            hexaNumberFractionPart[i] = mainPart;   
+                        } else if (mainPart >= 10) {
+                            if (mainPart == 10) {
+                                hexaNumberFractionPart[i] = 'A';
+                            } else if(mainPart == 11) {
+                                hexaNumberFractionPart[i] = 'B';
+                            } else if (mainPart == 12) {
+                                hexaNumberFractionPart[i] = 'C';
+                            } else if (mainPart == 13) {
+                                hexaNumberFractionPart[i] = 'D';
+                            } else if (mainPart == 14) {
+                                hexaNumberFractionPart[i] = 'E';
+                            } else if (mainPart == 15) {
+                                hexaNumberFractionPart[i] = 'F';
+                            }
+                        }
+
+                        let remainingPart = temp - mainPart;
+                        console.log("remainingPart: ", remainingPart);
+
+                        console.log(hexaNumberFractionPart[i]);
+                        fractionPartFloat = remainingPart;
+                        i++;
+                    }
+                    hexaDecimalString += '.';
+
+                    for(let j=0; j < 10; j++) {
+                        hexaDecimalString = hexaDecimalString + hexaNumberFractionPart[j];
+                    }
+                }
+
+                return hexaDecimalString;
+            }
+
+            function convertBinaryToHexaDecimal(value) {
+                let hexaDecimalEquivalent = "";
+                let l = value.length;
+                let t = value.indexOf('.');
+
+                console.log("Value of t:", t);
+                let lenLeft = '';
+
+                if (t === -1) {
+                    lenLeft = t != -1 ? t: l;
+                } else {
+                    lenLeft = t != -1 ? t: 1;
+                }
+
+                // let lenLeft = t != -1 ? t: 1;
+                console.log("lenLeft:: ", lenLeft);
+
+                for (let i=1; i <= (4-lenLeft%4)%4; i++) {
+                    value = '0' + value;
+                }
+
+                if (t != -1) {
+                    let lenRight = l - lenLeft - 1;
+                    console.log("lenRight:: ", lenRight);
+                    for (let i=1; i <= (4-lenRight%4)%4; i++) {
+                        value = value + '0';
+                    }
+                }
+
+                let i=0;
+                let binHexaDecimalMap = new Map();
+                createBinaryToHexaDecimalMapping(binHexaDecimalMap);
+                console.log("Complete Value:: ", value);
+                console.log("Complete Value Length:: ", value.length);
+
+                while(true) {
+                    hexaDecimalEquivalent += binHexaDecimalMap.get(value.substr(i,4));
+                    i+=4;
+
+                    if (i==value.length) {
+                        break;
+                    }
+
+                    if (value.charAt(i) == '.') {
+                        hexaDecimalEquivalent += '.';
+                        i++;
+                    }
+                }
+                console.log("Returning Hexa-Decimal Equivalent ::", hexaDecimalEquivalent);
+                return hexaDecimalEquivalent;
+            }
+
+            function convertHexaDecimalToBinary(value) {
+                let binaryString = '';
+                for (let i=0; i < value.length; i++) {
+                    let c = value.charAt(i);
+                    switch(c) {
+                        case '0':
+                            binaryString += '0000';
+                            break;
+                        case '1':
+                            binaryString += '0001';
+                            break;
+                        case '2':
+                            binaryString += '0010';
+                            break;
+                        case '3':
+                            binaryString += '0011';
+                            break;
+                        case '4':
+                            binaryString += '0100';
+                            break;
+                        case '5':
+                            binaryString += '0101';
+                            break;
+                        case '6':
+                            binaryString += '0110';
+                            break;
+                        case '7':
+                            binaryString += '0111';
+                            break;
+                        case '8':
+                            binaryString += '1000';
+                            break;
+                        case '9':
+                            binaryString += '1001';
+                            break;
+
+                        case 'a':
+                        case 'A':
+                            binaryString += '1010';
+                            break;
+
+                        case 'b':
+                        case 'B':
+                            binaryString += '1011';
+                            break;
+
+                        case 'c':
+                        case 'C':
+                            binaryString += '1100';
+                            break;
+
+                        case 'd':
+                        case 'D':
+                            binaryString += '1100';
+                            break;
+
+                        case 'e':
+                        case 'E':
+                            binaryString += '1110';
+                            break;
+
+                        case 'f':
+                        case 'F':
+                            binaryString += '1111';
+                            break;
+
+                        case '.':
+                            binaryString += '.';
+                            break;
+                    }
+                }
+                return binaryString;
+            }
+
+            function convertBinaryToOctal(value) {
+                let l = value.length;
+                let t = value.indexOf('.');
+                console.log("Value of t:", t);
+                let lenLeft = '';
+
+                if (t === -1) {
+                    lenLeft = t != -1 ? t: l;
+                } else {
+                    lenLeft = t != -1 ? t: 1;
+                }
+
+                console.log("Vale of lenLeft:: ", lenLeft);
+                // if (t === -1)
+                for (let i=1; i <= (3-lenLeft%3)%3; i++) {
+                    value = '0' + value;
+                }
+
+                if (t != -1) {
+                    let lenRight = l - lenLeft - 1;
+                    console.log("Vale of lenRight::", lenRight);
+                    for (let i=1; i <= (3-lenRight%3)%3; i++) {
+                        value = value + '0';
+                    }
+                }
+                
+                let binToOctMap = new Map();
+                createBinaryToOctalMapping(binToOctMap);
+
+                let i=0;
+                let octalString = "";
+                console.log("Complete Value ::", value);
+                console.log("Complete Value Length:: ", value.length);
+
+                while(true) {
+                    octalString += binToOctMap.get(value.substr(i, 3));
+                    
+                    i+=3;
+
+                    if (i==value.length) {
+                        break;
+                    }
+
+                    if (value.charAt(i) == '.') {
+                        octalString += '.';
+                        i++;
+                    }
+                }
+                console.log("Octal Equivalent String ::", octalString);
+                return octalString;
+            }
+
+            function octalToBinaryConversion(value) {
+                let binaryString = '';
+                let octalToBinary = new Map();
+                createOctalToBinaryMapping(octalToBinary);
+
+                for(let i=0; i < value.length; i++) {
+                    let ch = value.charAt(i);
+                    console.log(typeof(ch));
+                    if (ch == '.') {
+                        binaryString += ch;
+                    } else {
+                        binaryString += octalToBinary.get(ch);
+                    }
+                }
+                console.log("Binary String ::", binaryString);
+                return binaryString;
+            }
+        </script>
+    </body>
+</html>

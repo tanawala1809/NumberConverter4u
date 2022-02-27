@@ -1,0 +1,107 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: #04C1E1;
+    /* background: #04C1E1; */
+}
+
+.wrapper {
+    width: 400px;
+    padding: 30px;
+    border-radius: 9px;
+    background: #FFFFFF;
+
+}
+
+.wrapper header {
+    font-size: 30px;
+    font-weight: 400;
+    text-align: center;
+}
+
+.wrapper form {
+    margin: 40px 0 20px 0;
+}
+
+form :where(input, select, button) {
+    width: 100%;
+    outline: none;
+    border: none;
+    border-radius: 5px;
+}
+
+form p {
+    font-size: 18px;
+    margin-bottom: 5px;
+}
+
+
+form input {
+    height: 40px;
+    padding: 0px 15px;
+    font-size: 17px;
+    border: 1px solid #999;
+}
+
+form input:focus {
+    padding: 0 14px;
+    border: 2px solid #04C1E1;
+}
+
+form .drop-list {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.drop-list .select-box {
+    display: flex;
+    height: 30px;
+    width: 125px;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid #999;
+    border-radius: 5px;
+    /* background: #FF0000;
+    background-color: #FF0000; */
+}
+
+.select-box select {
+    width: auto;
+    font-size: 12px;
+    /* margin: 0 -5px 0 5px; */
+}
+
+/* .select-box select::-webkit-scrollbar {
+    width: 8px;
+} */
+
+.drop-list .icon {
+    font-size: 22px;
+    cursor: pointer;
+    margin-top: 30px;
+}
+
+.convert-number {
+    margin: 5px 0 25px 0;
+}
+
+form button {
+    cursor: pointer;
+    height: 50px;
+    color: #FFFFFF;
+    background: #04C1E1;
+    font-size: 18px;
+}
